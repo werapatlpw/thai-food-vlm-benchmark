@@ -8,6 +8,15 @@ IEEE Access (submitted 2026)
 
 ## Contents
 
+```
+ground_truth/          nutritional ground truth (dish-level, ingredient-level, ingredient reference)
+benchmark_results/     raw per-image model predictions (GPT-4o, Gemini, Grok, Llama4)
+scripts/               benchmark scripts + exact prompt used
+README.md
+```
+
+### `ground_truth/`
+
 - `ground_truth.csv` — Nutritional ground truth for 50 Thai dishes (10 per category × 5 categories), verified by a registered nutritionist. Values are per standard serving, sourced from the INMU Thai Food Composition Database and Thailand's Dietary Guidance for Working-Age Adults (Bureau of Nutrition, Department of Health, Ministry of Public Health).
 
   | Column | Description |
@@ -25,7 +34,7 @@ IEEE Access (submitted 2026)
 
   | Column | Description |
   |---|---|
-  | `dish_id` | Dish number (1–50), matches `ground_truth.csv` |
+  | `dish_id` | Dish number (1–50), matches `ground_truth/ground_truth.csv` |
   | `dish_name_th` / `category_th` | Dish name and category (Thai) |
   | `ingredient_th` | Ingredient name (Thai) |
   | `baowio_food_code` | Food code in the BaoWio/INMU nutrition database ("–" if hardcoded/USDA-sourced instead) |
@@ -44,18 +53,22 @@ IEEE Access (submitted 2026)
   | `energy_kcal_per100g` / `protein_g_per100g` / `fat_g_per100g` / `carb_g_per100g` | Nutrition values per 100g |
   | `source_note` | Data source (e.g. `BaoWio`, `USDA <item>`, `HARDCODE`) |
 
+### `benchmark_results/`
+
 - `benchmark_results_openai.csv`, `benchmark_results_gemini.csv`, `benchmark_results_grok.csv`, `benchmark_results_groq.csv` — Raw per-image predictions (250 rows each = 50 dishes × 5 images) from GPT-4o, Gemini 2.5 Flash, Grok 4.3, and Llama 4 (via Groq) respectively.
 
   | Column | Description |
   |---|---|
   | `category` | Dish category folder name |
-  | `menu_no` | Image-source menu/folder number. **Note:** this is the internal numbering from the raw image folders, not the same as `dish_id` in `ground_truth.csv` — match predictions to ground truth by dish name (`menu_pred` vs. `ชื่อเมนู`/`dish_name_th`), not by number. |
+  | `menu_no` | Image-source menu/folder number. **Note:** this is the internal numbering from the raw image folders, not the same as `dish_id` in `ground_truth/ground_truth.csv` — match predictions to ground truth by dish name (`menu_pred` vs. `ชื่อเมนู`/`dish_name_th`), not by number. |
   | `img_no` | Image index within that dish (1–5) |
   | `menu_pred` | Dish name as identified by the model (Thai) |
   | `kcal_pred` / `protein_pred` / `fat_pred` / `carb_pred` | Nutrition values estimated by the model |
   | `raw_response` | Full raw text response from the model |
 
-- `run_benchmark_openai.py`, `run_benchmark_gemini.py`, `run_benchmark_grok.py`, `run_benchmark_groq.py` — Scripts used to query each model's API with the food images and prompt, and save the results above. Each script reads its API credentials from an environment variable (`OPENAI_API_KEY`, `GOOGLE_SERVICE_ACCOUNT_FILE`/`GOOGLE_PROJECT_ID`, `XAI_API_KEY`, `GROQ_API_KEY`) — set these before running. Expects images under `./images/<category>/<menu_no>/<img_no>.jpg`.
+### `scripts/`
+
+- `run_benchmark_openai.py`, `run_benchmark_gemini.py`, `run_benchmark_grok.py`, `run_benchmark_groq.py` — Scripts used to query each model's API with the food images and prompt, and save the results above. Each script reads its API credentials from an environment variable (`OPENAI_API_KEY`, `GOOGLE_SERVICE_ACCOUNT_FILE`/`GOOGLE_PROJECT_ID`, `XAI_API_KEY`, `GROQ_API_KEY`) — set these before running. Expects images under `./images/<category>/<menu_no>/<img_no>.jpg` relative to wherever the script is run from.
 
 - `benchmark_prompt.txt` — Exact zero-shot prompt text used for all models and images (see Appendix A of the paper).
 
